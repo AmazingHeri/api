@@ -1,530 +1,595 @@
-openapi: 3.0.0
-info:
-  title: API Factura Fácil
-  description: >-
-    ## Utilizando la REST API de Factura Fácil
-
-
-    Factura Fácil usa una API REST, realizando la autenticación por medio de un
-    token OAuth, y retorna responses con códigos HTTP y códigos de response
-    formato JSON.
-
-
-    ## Requests
-
-
-    Para realizar una solicitud de API REST, se combina el método HTTP: GET,
-    POST, PUT, PATCH, la URL del servicio API, la URI de un recurso y se envian
-    datos en el body para actualizar o crear recursos.
-
-
-    La URL del servicio API es:
-
-
-    - Staging.
-    [https://10.16.2.71:8082/api/facturaFacil](https://10.16.2.71:8082/api/facturaFacil)
-    VPN??
-        
-    - Producción.
-    [https://facturafacil.digital:8082/api/facturaFacil](https://facturafacil.digital:8082/api/facturaFacil)
-        
-
-    ## Responses
-
-
-    Las llamadas a la API de Factura Fácil devuelven códigos de estado HTTP.
-    Algunas llamadas a la API también devuelven cuerpos de respuesta JSON que
-    incluyen información sobre el recurso, incluidos uno o más enlaces
-    contextuales. Cada solicitud de API REST devuelve un código de estado HTTP.
-
-
-    | **Código de estatus** | **Descripción** |
-
-    | --- | --- |
-
-    | 200 OK | Petición recibida y procesada de forma correcta. |
-
-    | 201 Created | Petición completada. El resultado ha sido la creación de un 
-    <br>nuevo recurso. |
-
-    | 204 No content | La petición es correcta, pero la respuesta no tiene
-    ningún contenido. |
-
-    | 401 Unauthorized: | La información de autenticación no es válida. |
-
-    | 404 Not found: | El recurso no ha sido encontrado. |
-  version: 1.0.0
-servers:
-  - url: https://10.16.2.71:8082
-  - url: http://127.0.0.1:8081
-components:
-  securitySchemes:
-    bearerAuth:
-      type: http
-      scheme: bearer
-tags:
-  - name: Auntenticación
-    description: >-
-      ## ¿Como obtener un usuario y un credencial de acceso?
-
-
-      Luego de realizar todo el proceso administrativo de registro como emisor
-      digital con SENIAT, se le otorgara acceso al sistema.
-
-        
-      Factura Fácil usa un usuario y contraseña para obtener un token de acceso
-      y autenticar las peticiones al API REST.
-
-
-      Puedes realizar las peticiones en cualquier lenguaje de programación.
-  - name: Documentos fiscales
-    description: >-
-      Desde este endpoint se puede asignar el número de control mientras se crea
-      cualquiera de documentos fiscales que exige el SENIAT en su providencia
-      0032.
-
-
-      Para el Auth se requiere un **token bearer** que se obtiene en el paso de
-      [Autenticación](https://go.postman.co/workspace/21535fd9-3c95-4f0b-8d60-697bc5c928d8/documentation/33717584-cc8d883f-48e0-4e65-ba3e-235ac37cbfee?entity=folder-7bf94c89-416a-4088-ac98-cb2f0ff397d8)
-      y pasar los parametros de la solicitud en formato json
-  - name: Documentos fiscales en lote
-paths:
-  /api/facturaFacil/autenticarUsuario:
-    post:
-      tags:
-        - Auntenticación
-      summary: Auntenticar
-      description: >-
-        | **Parametro** | **Tipo** | **Descripción** |
-
-        | --- | --- | --- |
-
-        | correo | string | Usuario generado para creación de la cuenta del
-        emisor seniat, debe ser único |
-
-        | clave | string | Cadena alfa númerica y con con caracteres especiales
-        mayor de 8 caracteres |
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                correo: '{{ usuario }}'
-                clave: '{{ contraseña }}'
-      responses:
-        '200':
-          description: OK
-          headers:
-            Access-Control-Allow-Origin:
-              schema:
-                type: string
-                example: '*'
-            Content-Length:
-              schema:
-                type: integer
-                example: '414'
-            MULE_ENCODING:
-              schema:
-                type: string
-                example: UTF-8
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=UTF-8
-            Date:
-              schema:
-                type: string
-                example: Fri, 16 Aug 2024 20:17:22 GMT
-          content:
-            application/json:
-              schema:
-                type: object
-              example:
-                messages: Las credenciales del usuario fueron validadas con éxito
-                token: '{{ACCESS-TOKEN}}'
-                status: success
-        '401':
-          description: Unauthorized
-          headers:
-            Access-Control-Allow-Origin:
-              schema:
-                type: string
-                example: '*'
-            Content-Length:
-              schema:
-                type: integer
-                example: '80'
-            MULE_ENCODING:
-              schema:
-                type: string
-                example: UTF-8
-            Content-Type:
-              schema:
-                type: string
-                example: application/json; charset=UTF-8
-            Date:
-              schema:
-                type: string
-                example: Fri, 16 Aug 2024 20:51:10 GMT
-          content:
-            application/json:
-              schema:
-                type: object
-              example:
-                messages: La clave del usuario es invalida
-                token: error
-                status: error
-  /api/facturaFacil/crearDocumentoFiscal:
-    post:
-      tags:
-        - Documentos fiscales
-      summary: Crear orden de entrega
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                metodo: crearDocumentoFiscal
-                codigoDocumentoFiscal: '05'
-                responsbleDocumentoFiscal: heriberto sosa
-                observacionesDocumentoFiscal: Cobranza
-                numeroDeCliente: '61585299'
-                documentoIdentidadCliente: V61585299
-                razonSocialCliente: heriberto sosa
-                correoCliente: heriberto.sosa11@gmail.com
-                direccionCliente: >-
-                  Av. Ernesto Blohm, Edi. IBM, CCCT, Chuao, Caracas, Miranda, ()
-                  # % + - # & 64778.
-                codigoPostalCliente: '1061'
-                compania: ''
-                numeroPivoteSeniat: '00'
-                numeroControlSeniat: '0'
-                codigoSerie: V
-                tipoSerie: RV
-                numeroSerie: '87'
-                descripcionSerie: Serie Viaticos
-                numeroDocumentoFiscal: '506'
-                numeroDocumentoFiscalOrigen: '501'
-                monedaDocumentoFiscal: USD
-                tasaCambioBCV: '36.1318'
-                subTotalFactura: '36803.26'
-                montoTotalDescuento: '0.00'
-                montoTotalIVA: '8648.77'
-                montoTotal: '45452.08'
-                codigoDivisaIGTF: ''
-                montoIGTF: '0'
-                impuestoIGTF: ''
-                montoTotalFactura: '45452.08'
-                fechaDocumentoFiscal: '2024-06-16'
-                fechaCaducidadDocumentoFiscal: '2024-07-29'
-                guiaNotaEntrega:
-                  - documentoIdentidadChofer: V1579846
-                    nombreCompletoChofer: CARLOS ANDRES PEREZ
-                    origenMercancia: CARACAS
-                    destinoMercancia: VALENCIA
-                    tipoVehiculo: CAMION
-                    placaVehiculo: AS234KL
-                    colorVehiculo: ROJO
-                productosAdquiridos:
-                  - codigoCategoriaProducto: INC
-                    nombreCategoriaProducto: INCENTIVOS
-                    codigoProducto: INC-IBM
-                    nombreProducto: Incentivo programa IBM
-                    precioProducto: '18401.63'
-                    precioTotal: '21345.89'
-                    montoDescuento: '0.00'
-                    cantidadAdquirida: '1'
-                    codigoImpuesto: G
-                    porcentajeImpuesto: '16.00'
-                    montoImpuesto: '2944.26'
-                  - codigoCategoriaProducto: INC
-                    nombreCategoriaProducto: INCENTIVOS II
-                    codigoProducto: INC-IBM-II
-                    nombreProducto: Incentivo programa IBM II
-                    precioProducto: '18401.63'
-                    precioTotal: '24106.1353'
-                    montoDescuento: '0.00'
-                    cantidadAdquirida: '1'
-                    codigoImpuesto: A
-                    porcentajeImpuesto: '31.00'
-                    montoImpuesto: '5704.5053'
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/facturaFacil/crearDocumentoFiscalLotes:
-    post:
-      tags:
-        - Documentos fiscales en lote
-      summary: Crear Documento Fiscal Por Lotes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                documentosFiscales:
-                  - metodo: crearDocumentoFiscal
-                    codigoDocumentoFiscal: '01'
-                    responsbleDocumentoFiscal: heriberto sosa
-                    observacionesDocumentoFiscal: Cobranza
-                    numeroDeCliente: '61585299'
-                    documentoIdentidadCliente: V61585299
-                    razonSocialCliente: heriberto sosa
-                    correoCliente: heriberto.sosa11@gmail.com
-                    direccionCliente: >-
-                      Av. Ernesto Blohm, Edi. IBM, CCCT, Chuao, Caracas,
-                      Miranda, () # % + - # & 64778
-                    codigoPostalCliente: '1061'
-                    compania: ''
-                    numeroPivoteSeniat: '00'
-                    numeroControlSeniat: '0'
-                    codigoSerie: V
-                    tipoSerie: RV
-                    numeroSerie: '87'
-                    descripcionSerie: Serie Viaticos
-                    numeroDocumentoFiscal: '13229175'
-                    numeroDocumentoFiscalOrigen: '0'
-                    monedaDocumentoFiscal: USD
-                    tasaCambioBCV: '36.1318'
-                    subTotalFactura: '36803.26'
-                    montoTotalDescuento: '0.00'
-                    montoTotalIVA: '8648.77'
-                    montoTotal: '45452.08'
-                    codigoDivisaIGTF: ''
-                    montoIGTF: '0'
-                    impuestoIGTF: ''
-                    montoTotalFactura: '45452.08'
-                    fechaDocumentoFiscal: '2024-06-16'
-                    fechaCaducidadDocumentoFiscal: '2024-06-16'
-                    guiaNotaEntrega:
-                      - documentoIdentidadChofer: ''
-                        nombreCompletoChofer: ''
-                        origenMercancia: ''
-                        destinoMercancia: ''
-                        tipoVehiculo: ''
-                        placaVehiculo: ''
-                        colorVehiculo: ''
-                    productosAdquiridos:
-                      - codigoCategoriaProducto: INC
-                        nombreCategoriaProducto: INCENTIVOS
-                        codigoProducto: INC-IBM
-                        nombreProducto: Incentivo programa IBM
-                        precioProducto: '18401.63'
-                        precioTotal: '21345.89'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '1'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '2944.26'
-                      - codigoCategoriaProducto: INC
-                        nombreCategoriaProducto: INCENTIVOS II
-                        codigoProducto: INC-IBM-II
-                        nombreProducto: Incentivo programa IBM II
-                        precioProducto: '18401.63'
-                        precioTotal: '24106.1353'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '1'
-                        codigoImpuesto: A
-                        porcentajeImpuesto: '31.00'
-                        montoImpuesto: '5704.5053'
-                  - metodo: crearDocumentoFiscal
-                    codigoDocumentoFiscal: '04'
-                    responsbleDocumentoFiscal: 'Edwuar Palacio -, (), &, #, % 132'
-                    observacionesDocumentoFiscal: Cobranza Expcional
-                    numeroDeCliente: '16852741'
-                    documentoIdentidadCliente: V16852741
-                    razonSocialCliente: KELVIN DIAZ
-                    correoCliente: hpcompaq2004@gmail.com
-                    direccionCliente: Caracas, AV LIBERTADO, SABANA GRANDE 22
-                    codigoPostalCliente: '1073'
-                    compania: ''
-                    numeroPivoteSeniat: ''
-                    numeroControlSeniat: ''
-                    codigoSerie: AAAA
-                    tipoSerie: RV
-                    numeroSerie: '87'
-                    descripcionSerie: Serie Sede Caracas
-                    numeroDocumentoFiscal: '13229176'
-                    numeroDocumentoFiscalOrigen: '0'
-                    monedaDocumentoFiscal: VES
-                    tasaCambioBCV: '0'
-                    subTotalFactura: '603309.6'
-                    montoTotalDescuento: '0.00'
-                    montoTotalIVA: '96529.536'
-                    montoTotal: '699839.136'
-                    codigoDivisaIGTF: ''
-                    montoIGTF: '20995.17408'
-                    impuestoIGTF: '3.00'
-                    montoTotalFactura: '699839.136'
-                    fechaDocumentoFiscal: '2024-04-14'
-                    fechaCaducidadDocumentoFiscal: '2024-04-14'
-                    guiaNotaEntrega:
-                      - documentoIdentidadChofer: V1579846
-                        nombreCompletoChofer: CARLOS ANDRES PEREZ
-                        origenMercancia: CARACAS
-                        destinoMercancia: VALENCIA
-                        tipoVehiculo: CAMION
-                        placaVehiculo: AS234KL
-                        colorVehiculo: ROJO
-                    productosAdquiridos:
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: PDU-US801M
-                        nombreProducto: Regleta Elect, & AC 110v 15A, Rackeable
-                        precioProducto: '128095.41'
-                        precioTotal: '297181.3512'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '2'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: LP-4C6USBL2
-                        nombreProducto: Patch Cord Cat 6, 2mt Lanpro Azul.
-                        precioProducto: '16055.36'
-                        precioTotal: '297987.4816'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '16'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: CABLEAC110
-                        nombreProducto: 'Cable de Poder 120AC '
-                        precioProducto: '4098.21'
-                        precioTotal: '19015.6944'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '4'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: NVT-3801
-                        nombreProducto: VELCRO Negro, 9.1mt x 9.5mm 3/8, 10 Yds
-                        precioProducto: '73840.18'
-                        precioTotal: '85654.6088'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '1'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                  - metodo: crearDocumentoFiscal
-                    codigoDocumentoFiscal: '05'
-                    responsbleDocumentoFiscal: Carlos Perez
-                    observacionesDocumentoFiscal: Cobranza Expcional
-                    numeroDeCliente: '16852741'
-                    documentoIdentidadCliente: V16852741
-                    razonSocialCliente: KELVIN DIAZ
-                    correoCliente: hpcompaq2004@gmail.com
-                    direccionCliente: Caracas
-                    codigoPostalCliente: '1073'
-                    compania: ''
-                    numeroPivoteSeniat: ''
-                    numeroControlSeniat: ''
-                    tipoSerie: ''
-                    codigoSerie: ''
-                    numeroSerie: ''
-                    descripcionSerie: ''
-                    numeroDocumentoFiscal: '13229177'
-                    numeroDocumentoFiscalOrigen: '13229175'
-                    monedaDocumentoFiscal: VES
-                    tasaCambioBCV: '0'
-                    subTotalFactura: '603309.6'
-                    montoTotalDescuento: '0.00'
-                    montoTotalIVA: '96529.536'
-                    montoTotal: '699839.186'
-                    codigoDivisaIGTF: ''
-                    montoIGTF: '20995.17408'
-                    impuestoIGTF: '3.00'
-                    montoTotalFactura: '699839.186'
-                    fechaDocumentoFiscal: '2024-04-14'
-                    fechaCaducidadDocumentoFiscal: '2024-04-14'
-                    guiaNotaEntrega:
-                      - documentoIdentidadChofer: V1579846
-                        nombreCompletoChofer: CARLOS ANDRES PEREZ
-                        origenMercancia: CARACAS
-                        destinoMercancia: VALENCIA
-                        tipoVehiculo: CAMION
-                        placaVehiculo: AS234KL
-                        colorVehiculo: ROJO
-                    productosAdquiridos:
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: PDU-US801M
-                        nombreProducto: Regleta Elect, & AC 110v 15A, Rackeable
-                        precioProducto: '128095.41'
-                        precioTotal: '297181.3512'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '2'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: LP-4C6USBL2
-                        nombreProducto: Patch Cord Cat 6, 2mt Lanpro Azul.
-                        precioProducto: '16055.36'
-                        precioTotal: '297987.4816'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '16'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: CABLEAC1101
-                        nombreProducto: 'Cable de Poder 12 mts 120AC '
-                        precioProducto: '4098.21'
-                        precioTotal: '19015.6944'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '4'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-                      - codigoCategoriaProducto: OTRP
-                        nombreCategoriaProducto: OTROS PRODUCTOS MAYORISTAS
-                        codigoProducto: NVT-3801
-                        nombreProducto: VELCRO Negro, 9.1mt x 9.5mm 3/8, 10 Yds
-                        precioProducto: '73840.18'
-                        precioTotal: '85654.6088'
-                        montoDescuento: '0.00'
-                        cantidadAdquirida: '1'
-                        codigoImpuesto: G
-                        porcentajeImpuesto: '16.00'
-                        montoImpuesto: '0'
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
-  /api/facturaFacil/generarReportes:
-    post:
-      tags:
-        - default
-      summary: Generar Reportes
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: object
-              example:
-                tipoReporte: numeroControl
-                codigoDocumentoFiscal: '01'
-      security:
-        - bearerAuth: []
-      responses:
-        '200':
-          description: Successful response
-          content:
-            application/json: {}
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "API Factura Fácil",
+    "description": "## Utilizando la REST API de Factura Fácil\n\nFactura Fácil usa una API REST, realizando la autenticación por medio de un token OAuth, y retorna responses con códigos HTTP y códigos de response formato JSON.\n\n## Requests\n\nPara realizar una solicitud de API REST, se combina el método HTTP: GET, POST, PUT, PATCH, la URL del servicio API, la URI de un recurso y se envian datos en el body para actualizar o crear recursos.\n\nLa URL del servicio API es:\n\n- Staging. [https://10.16.2.71:8082/api/facturaFacil](https://10.16.2.71:8082/api/facturaFacil) VPN??\n    \n- Producción. [https://facturafacil.digital:8082/api/facturaFacil](https://facturafacil.digital:8082/api/facturaFacil)\n    \n\n## Responses\n\nLas llamadas a la API de Factura Fácil devuelven códigos de estado HTTP. Algunas llamadas a la API también devuelven cuerpos de respuesta JSON que incluyen información sobre el recurso, incluidos uno o más enlaces contextuales. Cada solicitud de API REST devuelve un código de estado HTTP.\n\n| **Código de estatus** | **Descripción** |\n| --- | --- |\n| 200 OK | Petición recibida y procesada de forma correcta. |\n| 201 Created | Petición completada. El resultado ha sido la creación de un  <br>nuevo recurso. |\n| 204 No content | La petición es correcta, pero la respuesta no tiene ningún contenido. |\n| 401 Unauthorized: | La información de autenticación no es válida. |\n| 404 Not found: | El recurso no ha sido encontrado. |",
+    "version": "1.0.0"
+  },
+  "servers": [
+    {
+      "url": "https://10.16.2.71:8082"
+    },
+    {
+      "url": "http://127.0.0.1:8081"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Auntenticación",
+      "description": "## ¿Como obtener un usuario y un credencial de acceso?\n\nLuego de realizar todo el proceso administrativo de registro como emisor digital con SENIAT, se le otorgara acceso al sistema.\n\n  \nFactura Fácil usa un usuario y contraseña para obtener un token de acceso y autenticar las peticiones al API REST.\n\nPuedes realizar las peticiones en cualquier lenguaje de programación."
+    },
+    {
+      "name": "Documentos fiscales",
+      "description": "Desde este endpoint se puede asignar el número de control mientras se crea cualquiera de documentos fiscales que exige el SENIAT en su providencia 0032.\n\nPara el Auth se requiere un **token bearer** que se obtiene en el paso de [Autenticación](https://go.postman.co/workspace/21535fd9-3c95-4f0b-8d60-697bc5c928d8/documentation/33717584-cc8d883f-48e0-4e65-ba3e-235ac37cbfee?entity=folder-7bf94c89-416a-4088-ac98-cb2f0ff397d8) y pasar los parametros de la solicitud en formato json"
+    },
+    {
+      "name": "Documentos fiscales en lote"
+    }
+  ],
+  "paths": {
+    "/api/facturaFacil/autenticarUsuario": {
+      "post": {
+        "tags": [
+          "Auntenticación"
+        ],
+        "summary": "Auntenticar",
+        "description": "| **Parametro** | **Tipo** | **Descripción** |\n| --- | --- | --- |\n| correo | string | Usuario generado para creación de la cuenta del emisor seniat, debe ser único |\n| clave | string | Cadena alfa númerica y con con caracteres especiales mayor de 8 caracteres |",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "correo": "{{ usuario }}",
+                  "clave": "{{ contraseña }}"
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OK",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "example": "414"
+                }
+              },
+              "MULE_ENCODING": {
+                "schema": {
+                  "type": "string",
+                  "example": "UTF-8"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=UTF-8"
+                }
+              },
+              "Date": {
+                "schema": {
+                  "type": "string",
+                  "example": "Fri, 16 Aug 2024 20:17:22 GMT"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "messages": "Las credenciales del usuario fueron validadas con éxito",
+                  "token": "{{ACCESS-TOKEN}}",
+                  "status": "success"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              },
+              "Content-Length": {
+                "schema": {
+                  "type": "integer",
+                  "example": "80"
+                }
+              },
+              "MULE_ENCODING": {
+                "schema": {
+                  "type": "string",
+                  "example": "UTF-8"
+                }
+              },
+              "Content-Type": {
+                "schema": {
+                  "type": "string",
+                  "example": "application/json; charset=UTF-8"
+                }
+              },
+              "Date": {
+                "schema": {
+                  "type": "string",
+                  "example": "Fri, 16 Aug 2024 20:51:10 GMT"
+                }
+              }
+            },
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object"
+                },
+                "example": {
+                  "messages": "La clave del usuario es invalida",
+                  "token": "error",
+                  "status": "error"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/facturaFacil/crearDocumentoFiscal": {
+      "post": {
+        "tags": [
+          "Documentos fiscales"
+        ],
+        "summary": "Crear orden de entrega",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "metodo": "crearDocumentoFiscal",
+                  "codigoDocumentoFiscal": "05",
+                  "responsbleDocumentoFiscal": "heriberto sosa",
+                  "observacionesDocumentoFiscal": "Cobranza",
+                  "numeroDeCliente": "61585299",
+                  "documentoIdentidadCliente": "V61585299",
+                  "razonSocialCliente": "heriberto sosa",
+                  "correoCliente": "heriberto.sosa11@gmail.com",
+                  "direccionCliente": "Av. Ernesto Blohm, Edi. IBM, CCCT, Chuao, Caracas, Miranda, () # % + - # & 64778.",
+                  "codigoPostalCliente": "1061",
+                  "compania": "",
+                  "numeroPivoteSeniat": "00",
+                  "numeroControlSeniat": "0",
+                  "codigoSerie": "V",
+                  "tipoSerie": "RV",
+                  "numeroSerie": "87",
+                  "descripcionSerie": "Serie Viaticos",
+                  "numeroDocumentoFiscal": "506",
+                  "numeroDocumentoFiscalOrigen": "501",
+                  "monedaDocumentoFiscal": "USD",
+                  "tasaCambioBCV": "36.1318",
+                  "subTotalFactura": "36803.26",
+                  "montoTotalDescuento": "0.00",
+                  "montoTotalIVA": "8648.77",
+                  "montoTotal": "45452.08",
+                  "codigoDivisaIGTF": "",
+                  "montoIGTF": "0",
+                  "impuestoIGTF": "",
+                  "montoTotalFactura": "45452.08",
+                  "fechaDocumentoFiscal": "2024-06-16",
+                  "fechaCaducidadDocumentoFiscal": "2024-07-29",
+                  "guiaNotaEntrega": [
+                    {
+                      "documentoIdentidadChofer": "V1579846",
+                      "nombreCompletoChofer": "CARLOS ANDRES PEREZ",
+                      "origenMercancia": "CARACAS",
+                      "destinoMercancia": "VALENCIA",
+                      "tipoVehiculo": "CAMION",
+                      "placaVehiculo": "AS234KL",
+                      "colorVehiculo": "ROJO"
+                    }
+                  ],
+                  "productosAdquiridos": [
+                    {
+                      "codigoCategoriaProducto": "INC",
+                      "nombreCategoriaProducto": "INCENTIVOS",
+                      "codigoProducto": "INC-IBM",
+                      "nombreProducto": "Incentivo programa IBM",
+                      "precioProducto": "18401.63",
+                      "precioTotal": "21345.89",
+                      "montoDescuento": "0.00",
+                      "cantidadAdquirida": "1",
+                      "codigoImpuesto": "G",
+                      "porcentajeImpuesto": "16.00",
+                      "montoImpuesto": "2944.26"
+                    },
+                    {
+                      "codigoCategoriaProducto": "INC",
+                      "nombreCategoriaProducto": "INCENTIVOS II",
+                      "codigoProducto": "INC-IBM-II",
+                      "nombreProducto": "Incentivo programa IBM II",
+                      "precioProducto": "18401.63",
+                      "precioTotal": "24106.1353",
+                      "montoDescuento": "0.00",
+                      "cantidadAdquirida": "1",
+                      "codigoImpuesto": "A",
+                      "porcentajeImpuesto": "31.00",
+                      "montoImpuesto": "5704.5053"
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/facturaFacil/crearDocumentoFiscalLotes": {
+      "post": {
+        "tags": [
+          "Documentos fiscales en lote"
+        ],
+        "summary": "Crear Documento Fiscal Por Lotes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "documentosFiscales": [
+                    {
+                      "metodo": "crearDocumentoFiscal",
+                      "codigoDocumentoFiscal": "01",
+                      "responsbleDocumentoFiscal": "heriberto sosa",
+                      "observacionesDocumentoFiscal": "Cobranza",
+                      "numeroDeCliente": "61585299",
+                      "documentoIdentidadCliente": "V61585299",
+                      "razonSocialCliente": "heriberto sosa",
+                      "correoCliente": "heriberto.sosa11@gmail.com",
+                      "direccionCliente": "Av. Ernesto Blohm, Edi. IBM, CCCT, Chuao, Caracas, Miranda, () # % + - # & 64778",
+                      "codigoPostalCliente": "1061",
+                      "compania": "",
+                      "numeroPivoteSeniat": "00",
+                      "numeroControlSeniat": "0",
+                      "codigoSerie": "V",
+                      "tipoSerie": "RV",
+                      "numeroSerie": "87",
+                      "descripcionSerie": "Serie Viaticos",
+                      "numeroDocumentoFiscal": "13229175",
+                      "numeroDocumentoFiscalOrigen": "0",
+                      "monedaDocumentoFiscal": "USD",
+                      "tasaCambioBCV": "36.1318",
+                      "subTotalFactura": "36803.26",
+                      "montoTotalDescuento": "0.00",
+                      "montoTotalIVA": "8648.77",
+                      "montoTotal": "45452.08",
+                      "codigoDivisaIGTF": "",
+                      "montoIGTF": "0",
+                      "impuestoIGTF": "",
+                      "montoTotalFactura": "45452.08",
+                      "fechaDocumentoFiscal": "2024-06-16",
+                      "fechaCaducidadDocumentoFiscal": "2024-06-16",
+                      "guiaNotaEntrega": [
+                        {
+                          "documentoIdentidadChofer": "",
+                          "nombreCompletoChofer": "",
+                          "origenMercancia": "",
+                          "destinoMercancia": "",
+                          "tipoVehiculo": "",
+                          "placaVehiculo": "",
+                          "colorVehiculo": ""
+                        }
+                      ],
+                      "productosAdquiridos": [
+                        {
+                          "codigoCategoriaProducto": "INC",
+                          "nombreCategoriaProducto": "INCENTIVOS",
+                          "codigoProducto": "INC-IBM",
+                          "nombreProducto": "Incentivo programa IBM",
+                          "precioProducto": "18401.63",
+                          "precioTotal": "21345.89",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "1",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "2944.26"
+                        },
+                        {
+                          "codigoCategoriaProducto": "INC",
+                          "nombreCategoriaProducto": "INCENTIVOS II",
+                          "codigoProducto": "INC-IBM-II",
+                          "nombreProducto": "Incentivo programa IBM II",
+                          "precioProducto": "18401.63",
+                          "precioTotal": "24106.1353",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "1",
+                          "codigoImpuesto": "A",
+                          "porcentajeImpuesto": "31.00",
+                          "montoImpuesto": "5704.5053"
+                        }
+                      ]
+                    },
+                    {
+                      "metodo": "crearDocumentoFiscal",
+                      "codigoDocumentoFiscal": "04",
+                      "responsbleDocumentoFiscal": "Edwuar Palacio -, (), &, #, % 132",
+                      "observacionesDocumentoFiscal": "Cobranza Expcional",
+                      "numeroDeCliente": "16852741",
+                      "documentoIdentidadCliente": "V16852741",
+                      "razonSocialCliente": "KELVIN DIAZ",
+                      "correoCliente": "hpcompaq2004@gmail.com",
+                      "direccionCliente": "Caracas, AV LIBERTADO, SABANA GRANDE 22",
+                      "codigoPostalCliente": "1073",
+                      "compania": "",
+                      "numeroPivoteSeniat": "",
+                      "numeroControlSeniat": "",
+                      "codigoSerie": "AAAA",
+                      "tipoSerie": "RV",
+                      "numeroSerie": "87",
+                      "descripcionSerie": "Serie Sede Caracas",
+                      "numeroDocumentoFiscal": "13229176",
+                      "numeroDocumentoFiscalOrigen": "0",
+                      "monedaDocumentoFiscal": "VES",
+                      "tasaCambioBCV": "0",
+                      "subTotalFactura": "603309.6",
+                      "montoTotalDescuento": "0.00",
+                      "montoTotalIVA": "96529.536",
+                      "montoTotal": "699839.136",
+                      "codigoDivisaIGTF": "",
+                      "montoIGTF": "20995.17408",
+                      "impuestoIGTF": "3.00",
+                      "montoTotalFactura": "699839.136",
+                      "fechaDocumentoFiscal": "2024-04-14",
+                      "fechaCaducidadDocumentoFiscal": "2024-04-14",
+                      "guiaNotaEntrega": [
+                        {
+                          "documentoIdentidadChofer": "V1579846",
+                          "nombreCompletoChofer": "CARLOS ANDRES PEREZ",
+                          "origenMercancia": "CARACAS",
+                          "destinoMercancia": "VALENCIA",
+                          "tipoVehiculo": "CAMION",
+                          "placaVehiculo": "AS234KL",
+                          "colorVehiculo": "ROJO"
+                        }
+                      ],
+                      "productosAdquiridos": [
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "PDU-US801M",
+                          "nombreProducto": "Regleta Elect, & AC 110v 15A, Rackeable",
+                          "precioProducto": "128095.41",
+                          "precioTotal": "297181.3512",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "2",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        },
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "LP-4C6USBL2",
+                          "nombreProducto": "Patch Cord Cat 6, 2mt Lanpro Azul.",
+                          "precioProducto": "16055.36",
+                          "precioTotal": "297987.4816",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "16",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        },
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "CABLEAC110",
+                          "nombreProducto": "Cable de Poder 120AC ",
+                          "precioProducto": "4098.21",
+                          "precioTotal": "19015.6944",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "4",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        },
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "NVT-3801",
+                          "nombreProducto": "VELCRO Negro, 9.1mt x 9.5mm 3/8, 10 Yds",
+                          "precioProducto": "73840.18",
+                          "precioTotal": "85654.6088",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "1",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        }
+                      ]
+                    },
+                    {
+                      "metodo": "crearDocumentoFiscal",
+                      "codigoDocumentoFiscal": "05",
+                      "responsbleDocumentoFiscal": "Carlos Perez",
+                      "observacionesDocumentoFiscal": "Cobranza Expcional",
+                      "numeroDeCliente": "16852741",
+                      "documentoIdentidadCliente": "V16852741",
+                      "razonSocialCliente": "KELVIN DIAZ",
+                      "correoCliente": "hpcompaq2004@gmail.com",
+                      "direccionCliente": "Caracas",
+                      "codigoPostalCliente": "1073",
+                      "compania": "",
+                      "numeroPivoteSeniat": "",
+                      "numeroControlSeniat": "",
+                      "tipoSerie": "",
+                      "codigoSerie": "",
+                      "numeroSerie": "",
+                      "descripcionSerie": "",
+                      "numeroDocumentoFiscal": "13229177",
+                      "numeroDocumentoFiscalOrigen": "13229175",
+                      "monedaDocumentoFiscal": "VES",
+                      "tasaCambioBCV": "0",
+                      "subTotalFactura": "603309.6",
+                      "montoTotalDescuento": "0.00",
+                      "montoTotalIVA": "96529.536",
+                      "montoTotal": "699839.186",
+                      "codigoDivisaIGTF": "",
+                      "montoIGTF": "20995.17408",
+                      "impuestoIGTF": "3.00",
+                      "montoTotalFactura": "699839.186",
+                      "fechaDocumentoFiscal": "2024-04-14",
+                      "fechaCaducidadDocumentoFiscal": "2024-04-14",
+                      "guiaNotaEntrega": [
+                        {
+                          "documentoIdentidadChofer": "V1579846",
+                          "nombreCompletoChofer": "CARLOS ANDRES PEREZ",
+                          "origenMercancia": "CARACAS",
+                          "destinoMercancia": "VALENCIA",
+                          "tipoVehiculo": "CAMION",
+                          "placaVehiculo": "AS234KL",
+                          "colorVehiculo": "ROJO"
+                        }
+                      ],
+                      "productosAdquiridos": [
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "PDU-US801M",
+                          "nombreProducto": "Regleta Elect, & AC 110v 15A, Rackeable",
+                          "precioProducto": "128095.41",
+                          "precioTotal": "297181.3512",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "2",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        },
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "LP-4C6USBL2",
+                          "nombreProducto": "Patch Cord Cat 6, 2mt Lanpro Azul.",
+                          "precioProducto": "16055.36",
+                          "precioTotal": "297987.4816",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "16",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        },
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "CABLEAC1101",
+                          "nombreProducto": "Cable de Poder 12 mts 120AC ",
+                          "precioProducto": "4098.21",
+                          "precioTotal": "19015.6944",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "4",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        },
+                        {
+                          "codigoCategoriaProducto": "OTRP",
+                          "nombreCategoriaProducto": "OTROS PRODUCTOS MAYORISTAS",
+                          "codigoProducto": "NVT-3801",
+                          "nombreProducto": "VELCRO Negro, 9.1mt x 9.5mm 3/8, 10 Yds",
+                          "precioProducto": "73840.18",
+                          "precioTotal": "85654.6088",
+                          "montoDescuento": "0.00",
+                          "cantidadAdquirida": "1",
+                          "codigoImpuesto": "G",
+                          "porcentajeImpuesto": "16.00",
+                          "montoImpuesto": "0"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    },
+    "/api/facturaFacil/generarReportes": {
+      "post": {
+        "tags": [
+          "default"
+        ],
+        "summary": "Generar Reportes",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "example": {
+                  "tipoReporte": "numeroControl",
+                  "codigoDocumentoFiscal": "01"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearerAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful response",
+            "content": {
+              "application/json": {}
+            }
+          }
+        }
+      }
+    }
+  }
+}
